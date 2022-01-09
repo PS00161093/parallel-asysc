@@ -17,6 +17,14 @@ class CompletableFutureHelloWorldTest {
         CompletableFuture<String> helloWorldCompletableFuture = cfhw.helloWorld();
         helloWorldCompletableFuture
                 .thenAccept(s -> assertEquals("HELLO WORLD", s))
-        .join();
+                .join();
+    }
+
+    @Test
+    void helloWorldWithSize() {
+        CompletableFuture<String> helloWorldCompletableFuture = cfhw.helloWorldWithSize();
+        helloWorldCompletableFuture
+                .thenAccept(s -> assertEquals("11 - HELLO WORLD", s))
+                .join();
     }
 }

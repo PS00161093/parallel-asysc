@@ -17,9 +17,15 @@ public class CompletableFutureHelloWorld {
     }
 
     public CompletableFuture<String> helloWorld() {
-
         return CompletableFuture
                 .supplyAsync(hws::helloWorld)
                 .thenApply(String::toUpperCase);
+    }
+
+    public CompletableFuture<String> helloWorldWithSize() {
+        return CompletableFuture
+                .supplyAsync(hws::helloWorld)
+                .thenApply(String::toUpperCase)
+                .thenApply(s -> s.length() + " - " + s);
     }
 }
