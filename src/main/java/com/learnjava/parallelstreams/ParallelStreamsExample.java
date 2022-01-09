@@ -21,7 +21,7 @@ public class ParallelStreamsExample {
         timeTaken();
     }
 
-    private List<String> stringTransform(List<String> names) {
+    public List<String> stringTransform(List<String> names) {
         return names.
                 parallelStream()
                 .map(this::addNameLengthTransform)
