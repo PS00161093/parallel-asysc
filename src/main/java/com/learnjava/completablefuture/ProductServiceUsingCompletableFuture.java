@@ -88,6 +88,28 @@ public class ProductServiceUsingCompletableFuture {
         return product;
     }
 
+    public Product retrieveProductDetailsWithInventory_1(String productId) {
+        stopWatch.start();
+
+        CompletableFuture<ProductInfo> cfProductInfo = CompletableFuture
+                .supplyAsync(() -> productInfoService.retrieveProductInfo(productId))
+                .thenApply(productInfo -> {
+                    productInfo.setProductOptions(updateInventory_1(productInfo));
+                    return productInfo;
+                });
+        CompletableFuture<Review> cfReview = CompletableFuture
+                .supplyAsync(() -> reviewService.retrieveReviews(productId));
+
+        Product product = cfProductInfo
+                .thenCombine(cfReview, (productInfo, review) -> new Product(productId, productInfo, review))
+                .join();
+
+        stopWatch.stop();
+        log("Total Time Taken : " + stopWatch.getTime());
+
+        return product;
+    }
+
     private List<ProductOption> updateInventory(ProductInfo productInfo) {
         return productInfo.getProductOptions()
                 .stream()
@@ -96,6 +118,22 @@ public class ProductServiceUsingCompletableFuture {
                     productOption.setInventory(inventory);
                     return productOption;
                 })
+                .collect(Collectors.toList());
+    }
+
+    private List<ProductOption> updateInventory_1(ProductInfo productInfo) {
+        return productInfo.getProductOptions()
+                .stream()
+                .map(productOption -> {
+                    return CompletableFuture.supplyAsync(() -> inventoryService.retrieveInventory(productOption))
+                            .thenApply(inventory -> {
+                                productOption.setInventory(inventory);
+                                return productOption;
+                            });
+                })
+                .collect(Collectors.toList())
+                .stream()
+                .map(CompletableFuture::join)
                 .collect(Collectors.toList());
     }
 }
