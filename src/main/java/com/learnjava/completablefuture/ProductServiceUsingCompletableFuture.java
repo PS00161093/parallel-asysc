@@ -1,12 +1,13 @@
 package com.learnjava.completablefuture;
 
-import com.learnjava.domain.Product;
-import com.learnjava.domain.ProductInfo;
-import com.learnjava.domain.Review;
+import com.learnjava.domain.*;
+import com.learnjava.service.InventoryService;
 import com.learnjava.service.ProductInfoService;
 import com.learnjava.service.ReviewService;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.learnjava.util.CommonUtil.stopWatch;
 import static com.learnjava.util.LoggerUtil.log;
@@ -14,6 +15,13 @@ import static com.learnjava.util.LoggerUtil.log;
 public class ProductServiceUsingCompletableFuture {
     private final ProductInfoService productInfoService;
     private final ReviewService reviewService;
+    private InventoryService inventoryService;
+
+    public ProductServiceUsingCompletableFuture(ProductInfoService productInfoService, ReviewService reviewService, InventoryService inventoryService) {
+        this.productInfoService = productInfoService;
+        this.reviewService = reviewService;
+        this.inventoryService = inventoryService;
+    }
 
     public ProductServiceUsingCompletableFuture(ProductInfoService productInfoService, ReviewService reviewService) {
         this.productInfoService = productInfoService;
@@ -56,6 +64,38 @@ public class ProductServiceUsingCompletableFuture {
         String productId = "ABC123";
         Product product = productService.retrieveProductDetails(productId);
         log("Product is " + product);
+    }
 
+    public Product retrieveProductDetailsWithInventory(String productId) {
+        stopWatch.start();
+
+        CompletableFuture<ProductInfo> cfProductInfo = CompletableFuture
+                .supplyAsync(() -> productInfoService.retrieveProductInfo(productId))
+                .thenApply(productInfo -> {
+                    productInfo.setProductOptions(updateInventory(productInfo));
+                    return productInfo;
+                });
+        CompletableFuture<Review> cfReview = CompletableFuture
+                .supplyAsync(() -> reviewService.retrieveReviews(productId));
+
+        Product product = cfProductInfo
+                .thenCombine(cfReview, (productInfo, review) -> new Product(productId, productInfo, review))
+                .join();
+
+        stopWatch.stop();
+        log("Total Time Taken : " + stopWatch.getTime());
+
+        return product;
+    }
+
+    private List<ProductOption> updateInventory(ProductInfo productInfo) {
+        return productInfo.getProductOptions()
+                .stream()
+                .map(productOption -> {
+                    Inventory inventory = inventoryService.retrieveInventory(productOption);
+                    productOption.setInventory(inventory);
+                    return productOption;
+                })
+                .collect(Collectors.toList());
     }
 }
