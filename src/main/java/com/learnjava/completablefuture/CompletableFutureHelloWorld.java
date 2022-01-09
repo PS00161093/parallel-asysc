@@ -4,8 +4,7 @@ import com.learnjava.service.HelloWorldService;
 
 import java.util.concurrent.CompletableFuture;
 
-import static com.learnjava.util.CommonUtil.startTimer;
-import static com.learnjava.util.CommonUtil.timeTaken;
+import static com.learnjava.util.CommonUtil.*;
 
 public class CompletableFutureHelloWorld {
 
@@ -38,6 +37,23 @@ public class CompletableFutureHelloWorld {
         CompletableFuture<String> worldFuture = CompletableFuture.supplyAsync(hws::world);
         String helloWord = helloFuture
                 .thenCombine(worldFuture, String::concat)
+                .thenApply(String::toUpperCase)
+                .join();
+        timeTaken();
+        return helloWord;
+    }
+
+    public String helloWorldWith3AsyncCalls() {
+        startTimer();
+        CompletableFuture<String> helloFuture = CompletableFuture.supplyAsync(hws::hello);
+        CompletableFuture<String> worldFuture = CompletableFuture.supplyAsync(hws::world);
+        CompletableFuture<String> hiCompletableFuture = CompletableFuture.supplyAsync(() -> {
+            delay(1000);
+            return "Hi CompletableFuture!";
+        });
+        String helloWord = helloFuture
+                .thenCombine(worldFuture, String::concat)
+                .thenCombine(hiCompletableFuture, (previous, current) -> previous + current)
                 .thenApply(String::toUpperCase)
                 .join();
         timeTaken();

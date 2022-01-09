@@ -33,4 +33,10 @@ class CompletableFutureHelloWorldTest {
         String helloWorldCompletableFuture = cfhw.helloWorldWithAsyncCalls();
         assertEquals("HELLO WORLD!", helloWorldCompletableFuture);
     }
+
+    @Test
+    void helloWorldMultiple3AsyncCalls() {
+        String helloWorldCompletableFuture = cfhw.helloWorldWith3AsyncCalls();
+        assertEquals("HELLO WORLD!HI COMPLETABLEFUTURE!", helloWorldCompletableFuture);
+    }
 }
