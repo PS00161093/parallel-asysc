@@ -28,7 +28,7 @@ public class StringTransformExample {
     }
 
 
-    private static String addNameLengthTransform(String name) {
+    static String addNameLengthTransform(String name) {
         delay(500);
         return name.length()+" - "+name ;
     }
