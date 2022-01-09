@@ -1,3 +1,5 @@
+package com.learnjava.parallelstreams;
+
 import com.learnjava.parallelstreams.ParallelStreamsExample;
 import com.learnjava.util.DataSet;
 import org.junit.jupiter.api.Test;
