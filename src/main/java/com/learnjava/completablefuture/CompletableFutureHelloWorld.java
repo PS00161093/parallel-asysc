@@ -13,6 +13,7 @@ public class CompletableFutureHelloWorld {
         HelloWorldService hws = new HelloWorldService();
         CompletableFuture
                 .supplyAsync(hws::helloWorld)
+                .thenApply(String::toUpperCase)
                 .thenAccept((result) -> log("Result is " + result))
                 .join();
         log("Done!");
