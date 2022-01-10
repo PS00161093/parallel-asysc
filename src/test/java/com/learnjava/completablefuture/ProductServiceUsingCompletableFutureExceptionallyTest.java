@@ -59,4 +59,21 @@ class ProductServiceUsingCompletableFutureExceptionallyTest {
         assertThrows(RuntimeException.class, () -> pscmf.retrieveProductDetailsWithInventory_1(productId));
     }
 
+    @Test
+    void retrieveProductDetailsWithInventory_2_SuccessFlow() {
+
+        String productId = "productId";
+
+        when(pisMock.retrieveProductInfo(productId)).thenCallRealMethod();
+        when(rsMock.retrieveReviews(productId)).thenCallRealMethod();
+        when(isMock.retrieveInventory(any())).thenThrow(new RuntimeException("Exception Occurred"));
+
+        Product product = pscmf.retrieveProductDetailsWithInventory_1(productId);
+
+        assertNotNull(product);
+        assertFalse(product.getProductInfo().getProductOptions().isEmpty());
+        assertNotNull(product.getReview());
+        product.getProductInfo().getProductOptions().forEach(productOption -> assertNotNull(productOption.getInventory()));
+        assertEquals(1, product.getProductInfo().getProductOptions().get(0).getInventory().getCount());
+    }
 }

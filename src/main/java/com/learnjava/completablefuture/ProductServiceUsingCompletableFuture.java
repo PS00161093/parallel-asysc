@@ -4,14 +4,13 @@ import com.learnjava.domain.*;
 import com.learnjava.service.InventoryService;
 import com.learnjava.service.ProductInfoService;
 import com.learnjava.service.ReviewService;
-import com.learnjava.util.LoggerUtil;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static com.learnjava.util.CommonUtil.stopWatch;
-import static com.learnjava.util.LoggerUtil.*;
+import static com.learnjava.util.CommonUtil.stopWatchReset;
 import static com.learnjava.util.LoggerUtil.log;
 
 public class ProductServiceUsingCompletableFuture {
@@ -111,10 +110,10 @@ public class ProductServiceUsingCompletableFuture {
 
         Product product = cfProductInfo
                 .thenCombine(cfReview, (productInfo, review) -> new Product(productId, productInfo, review))
-                .whenComplete((pro, ex) -> log("Inside whenComplete() : " + pro + " and exception is : " + ex.getMessage()))
                 .join();
 
         stopWatch.stop();
+        stopWatchReset();
         log("Total Time Taken : " + stopWatch.getTime());
 
         return product;
@@ -136,6 +135,12 @@ public class ProductServiceUsingCompletableFuture {
                 .stream()
                 .map(productOption -> {
                     return CompletableFuture.supplyAsync(() -> inventoryService.retrieveInventory(productOption))
+                            .exceptionally(ex -> {
+                                log("Exception occurred while calling inventory service");
+                                return Inventory.builder()
+                                        .count(1)
+                                        .build();
+                            })
                             .thenApply(inventory -> {
                                 productOption.setInventory(inventory);
                                 return productOption;
