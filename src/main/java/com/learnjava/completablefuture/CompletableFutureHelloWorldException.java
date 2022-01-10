@@ -4,6 +4,7 @@ import com.learnjava.service.HelloWorldService;
 import com.learnjava.util.CommonUtil;
 import com.learnjava.util.LoggerUtil;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import static com.learnjava.util.CommonUtil.*;
@@ -28,13 +29,19 @@ public class CompletableFutureHelloWorldException {
         });
         String helloWord = helloFuture
                 .handle((res, ex) -> {
-                    log("Exception is: " + ex.getMessage());
-                    return "";
+                    if (Objects.nonNull(ex)) {
+                        log("Exception is: " + ex.getMessage());
+                        return "";
+                    }
+                    return res;
                 })
                 .thenCombine(worldFuture, String::concat)
                 .handle((res, ex) -> {
-                    log("Exception in world: " + ex.getMessage());
-                    return "";
+                    if (Objects.nonNull(ex)) {
+                        log("Exception is: " + ex.getMessage());
+                        return "";
+                    }
+                    return res;
                 })
                 .thenCombine(hiCompletableFuture, (previous, current) -> previous + current)
                 .thenApply(String::toUpperCase)
