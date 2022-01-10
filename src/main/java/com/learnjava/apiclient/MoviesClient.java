@@ -9,6 +9,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.learnjava.util.CommonUtil.*;
 
@@ -26,7 +27,15 @@ public class MoviesClient {
         var reviews = invokeReviewService(movieInfoId);
         timeTaken();
         stopWatchReset();
+
         return new Movie(movieInfo, reviews);
+    }
+
+    public List<Movie> retrieveMovies(List<Long> movieInfoIds) {
+        return movieInfoIds
+                .stream()
+                .map(this::retrieveMovie)
+                .collect(Collectors.toList());
     }
 
     public CompletableFuture<Movie> retrieveMovieCompletableFuture(Long movieInfoId) {
@@ -35,7 +44,20 @@ public class MoviesClient {
         var reviews = CompletableFuture.supplyAsync(() -> invokeReviewService(movieInfoId));
         timeTaken();
         stopWatchReset();
+
         return movieInfo.thenCombine(reviews, Movie::new);
+    }
+
+    public List<Movie> retrieveMoviesCompletableFuture(List<Long> movieInfoIds) {
+        var moviesFuture = movieInfoIds
+                .stream()
+                .map(this::retrieveMovieCompletableFuture)
+                .collect(Collectors.toList());
+
+        return moviesFuture
+                .stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
     }
 
     private MovieInfo invokeMovieInfoService(Long movieInfoId) {
