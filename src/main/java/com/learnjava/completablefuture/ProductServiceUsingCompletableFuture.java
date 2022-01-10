@@ -4,12 +4,14 @@ import com.learnjava.domain.*;
 import com.learnjava.service.InventoryService;
 import com.learnjava.service.ProductInfoService;
 import com.learnjava.service.ReviewService;
+import com.learnjava.util.LoggerUtil;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static com.learnjava.util.CommonUtil.stopWatch;
+import static com.learnjava.util.LoggerUtil.*;
 import static com.learnjava.util.LoggerUtil.log;
 
 public class ProductServiceUsingCompletableFuture {
@@ -98,7 +100,14 @@ public class ProductServiceUsingCompletableFuture {
                     return productInfo;
                 });
         CompletableFuture<Review> cfReview = CompletableFuture
-                .supplyAsync(() -> reviewService.retrieveReviews(productId));
+                .supplyAsync(() -> reviewService.retrieveReviews(productId))
+                .exceptionally(ex -> {
+                    log("Handled the exception in Review Service: " + ex.getMessage());
+                    return Review.builder()
+                            .noOfReviews(0)
+                            .overallRating(0)
+                            .build();
+                });
 
         Product product = cfProductInfo
                 .thenCombine(cfReview, (productInfo, review) -> new Product(productId, productInfo, review))
