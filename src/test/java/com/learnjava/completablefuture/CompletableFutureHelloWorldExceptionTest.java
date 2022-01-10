@@ -30,4 +30,15 @@ class CompletableFutureHelloWorldExceptionTest {
 
         assertEquals(" WORLD!HI COMPLETABLEFUTURE!", result);
     }
+
+    @Test
+    void helloWorldWith3AsyncCallsWithHandle1() {
+
+        when(hws.hello()).thenThrow(new RuntimeException("Exception Occurred"));
+        when(hws.world()).thenThrow(new RuntimeException("Exception Occurred"));
+
+        String result = hwcfe.helloWorldWith3AsyncCallsWithHandle();
+
+        assertEquals("HI COMPLETABLEFUTURE!", result);
+    }
 }

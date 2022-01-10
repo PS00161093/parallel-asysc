@@ -32,6 +32,10 @@ public class CompletableFutureHelloWorldException {
                     return "";
                 })
                 .thenCombine(worldFuture, String::concat)
+                .handle((res, ex) -> {
+                    log("Exception in world: " + ex.getMessage());
+                    return "";
+                })
                 .thenCombine(hiCompletableFuture, (previous, current) -> previous + current)
                 .thenApply(String::toUpperCase)
                 .join();
