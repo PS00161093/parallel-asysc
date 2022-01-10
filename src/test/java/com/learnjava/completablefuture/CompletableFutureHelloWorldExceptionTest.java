@@ -52,4 +52,37 @@ class CompletableFutureHelloWorldExceptionTest {
 
         assertEquals("HELLO WORLD!HI COMPLETABLEFUTURE!", result);
     }
+
+    @Test
+    void helloWorldWith3AsyncCallsWithHandle3() {
+
+        when(hws.hello()).thenCallRealMethod();
+        when(hws.world()).thenCallRealMethod();
+
+        String result = hwcfe.helloWorldWith3AsyncCallsWithExceptionally();
+
+        assertEquals("HELLO WORLD!HI COMPLETABLEFUTURE!", result);
+    }
+
+    @Test
+    void helloWorldWith3AsyncCallsWithHandle4() {
+
+        when(hws.hello()).thenThrow(new RuntimeException("Exception Occurred"));
+        when(hws.world()).thenThrow(new RuntimeException("Exception Occurred"));
+
+        String result = hwcfe.helloWorldWith3AsyncCallsWithExceptionally();
+
+        assertEquals("HI COMPLETABLEFUTURE!", result);
+    }
+
+    @Test
+    void helloWorldWith3AsyncCallsWithHandle5() {
+
+        when(hws.hello()).thenThrow(new RuntimeException("Exception Occurred"));
+        when(hws.world()).thenCallRealMethod();
+
+        String result = hwcfe.helloWorldWith3AsyncCallsWithExceptionally();
+
+        assertEquals(" WORLD!HI COMPLETABLEFUTURE!", result);
+    }
 }
