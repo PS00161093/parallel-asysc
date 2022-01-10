@@ -1,10 +1,10 @@
 package com.learnjava.apiclient;
 
-import com.learnjava.domain.movie.Movie;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class MoviesClientTest {
 
@@ -14,9 +14,8 @@ class MoviesClientTest {
 
     MoviesClient moviesClient = new MoviesClient(webClient);
 
-    @Test
+    @RepeatedTest(10)
     void retrieveMovie() {
-
         var movieId = 1L;
 
         var movie = moviesClient.retrieveMovie(movieId);
@@ -24,6 +23,16 @@ class MoviesClientTest {
         assertNotNull(movie);
         assertEquals("Batman Begins", movie.getMovieInfo().getName());
         assertEquals(1, movie.getReviewList().size());
+    }
 
+    @RepeatedTest(10)
+    void retrieveMovieCF() {
+        var movieId = 1L;
+
+        var movie = moviesClient.retrieveMovieCompletableFuture(movieId).join();
+
+        assertNotNull(movie);
+        assertEquals("Batman Begins", movie.getMovieInfo().getName());
+        assertEquals(1, movie.getReviewList().size());
     }
 }
