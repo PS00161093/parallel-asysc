@@ -24,7 +24,7 @@ public class MoviesClient {
     }
 
     private MovieInfo invokeMovieInfoService(Long movieInfoId) {
-        var movieInfoServiceContextPath = "/v1/movies_infos/{movieInfoId}";
+        var movieInfoServiceContextPath = "/v1/movie_infos/{movieInfoId}";
         return webClient
                 .get()
                 .uri(movieInfoServiceContextPath, movieInfoId)
@@ -37,7 +37,7 @@ public class MoviesClient {
         var movieInfoServiceContextPath = UriComponentsBuilder.fromUriString("/v1/reviews")
                 .queryParam("movieInfoId", movieInfoId)
                 .buildAndExpand()
-                .toUri();
+                .toString();
 
         return webClient
                 .get()
